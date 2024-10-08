@@ -182,16 +182,3 @@ while True:
         quantity = input("Product quantity: ")
 
         inventory.add_product(name, desc, price, quantity)
-
-
-
-
-
-
-
-
-
-    
-
-
-
