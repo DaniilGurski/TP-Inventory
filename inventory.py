@@ -1,7 +1,6 @@
 from csv import DictReader, DictWriter
 from msvcrt import getwch
 from os import system
-from time import sleep
 
 
 class Product:
