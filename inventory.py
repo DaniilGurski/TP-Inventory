@@ -1,6 +1,10 @@
+import colorama
 from csv import DictReader, DictWriter
 from msvcrt import getwch
 from os import system
+from colorama import Fore, Back, Style
+
+colorama.init(autoreset=True)
 
 
 class Product:
@@ -115,12 +119,12 @@ class Inventory:
                 try:
                     price = float(row['price'])
                 except: 
-                    price = "[INVALID PRICE]"
+                    price = f"{Fore.RED}[INVALID PRICE]"
 
                 try:
                     quantity = int(row['quantity'])
                 except: 
-                    quantity = "[INVALID QUANTITY]"
+                    quantity = f"{Fore.RED}[INVALID QUANTITY]"
                 
                 products.append(Product(id, name, desc, price, quantity))
 
@@ -156,7 +160,7 @@ while True:
     inventory.view_inventory()
     print(message + "\n" if len(message) else "")
 
-    user_command= getwch_input("(A)dd | (R)emove | (E)dit a product | (Q)uit: ").upper()  # prompt the user for a command
+    user_command= getwch_input(f"{Style.BRIGHT}(A)dd | (R)emove | (E)dit a product | (Q)uit and save: ").upper()  # prompt the user for a command
 
     if user_command in ID_REQUIRED_COMMANDS:
         product_id = validate_int(getwch_input("Enter product ID: "))
