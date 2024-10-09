@@ -13,7 +13,7 @@ class Product:
 
 
     def __str__(self) -> str:           
-        return f" #{self.id} | {self.name} | {self.desc} | {self.price} | {self.quantity}"  
+        return f" #{self.id}   {self.name}   {self.desc}   {self.price}   {self.quantity}"  
 
 
 class Inventory:
@@ -24,7 +24,7 @@ class Inventory:
         self.source_file = source_file
 
     
-    def check_inventory(self):
+    def view_inventory(self):
         system("cls")
         if not len(self.products):
             print("Inventory is empty")
@@ -54,7 +54,6 @@ class Inventory:
     def add_product(self, name, desc, price, quantity):
         new_id = self.create_unquie_id()
         self.products.append(Product(new_id, name, desc, price, quantity))
-        self.save_to_inventory()
 
 
     def edit_product(self, id, name, desc, price, quantity): 
@@ -72,19 +71,33 @@ class Inventory:
 
 
     def save_to_inventory(self):
-        with open(self.source_file, mode="w") as csvfile:
-            fieldnames = ["id", "name", "desc", "price", "quantity"]
-            writer = DictWriter(csvfile, fieldnames)
+        print("Saving to inventory database ...")
+        
+        try:
+            with open(self.source_file, mode="w") as csvfile:
+                fieldnames = ["id", "name", "desc", "price", "quantity"]
+                writer = DictWriter(csvfile, fieldnames)
 
-            writer.writeheader()
-            for product in self.products:
-                writer.writerow({
-                    "id": product.id,
-                    "name": product.name,
-                    "desc": product.desc,
-                    "price": product.price,
-                    "quantity": product.quantity
-                })
+                writer.writeheader()
+                for product in self.products:
+                    writer.writerow({
+                        "id": product.id,
+                        "name": product.name,
+                        "desc": product.desc,
+                        "price": product.price,
+                        "quantity": product.quantity
+                    })
+
+                print("Done !")
+            
+        except Exception as error_code:
+            print("Error")
+
+            # in case file is read-only or corrupt 
+            if isinstance(error_code, OSError) and error_code.errno == 13:
+                print("Cause: File is read-only")
+            else:
+                print(f"Cause: {error_code}")
 
 
     @staticmethod
@@ -140,10 +153,10 @@ ID_REQUIRED_COMMANDS = ["R", "E"]
 # main program loop
 while True:
     # view inventory and eventual messages (like warnings, errors)
-    inventory.check_inventory()
+    inventory.view_inventory()
     print(message + "\n" if len(message) else "")
 
-    user_command= getwch_input("(A)dd | (R)emove | (E)dit a product: ").upper()  # prompt the user for a command
+    user_command= getwch_input("(A)dd | (R)emove | (E)dit a product | (Q)uit: ").upper()  # prompt the user for a command
 
     if user_command in ID_REQUIRED_COMMANDS:
         product_id = validate_int(getwch_input("Enter product ID: "))
@@ -152,6 +165,7 @@ while True:
             message = "Not valid input"
             continue
         
+
         # remove product
         elif user_command == "R": 
             inventory.remove_product(product_id)
@@ -168,6 +182,7 @@ while True:
 
             inventory.edit_product(product_id, name, desc, price, quantity)
 
+
         inventory.save_to_inventory()
             
 
@@ -181,3 +196,8 @@ while True:
         quantity = input("Product quantity: ")
 
         inventory.add_product(name, desc, price, quantity)
+
+
+    elif user_command == "Q":
+        inventory.save_to_inventory()
+        exit()
